@@ -1,0 +1,178 @@
+<!-- Sample interface from https://p5js.org/get-started/ -->
+<html>
+  <head>
+      <style>
+   
+
+    html, body { 
+        font-size: 100%;
+        background-color: #FFFFFF;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        }
+          /* Canvas here effects p5 canvases (which are automatically read as canvases in the HTML)  Sketch-container is class used to control div containing sketchpad */
+        canvas { 
+            display: block;
+            width: 0%;
+            height: 0%;
+            padding: 0% 0%;
+        } 
+        #sketch-container {
+            width: 100%;
+            height: 0%;
+            padding: 0% 0%;
+        }
+        
+        .slidecontainer {
+          width: 100%; /* Width of the outside container */
+          height: 0%;
+          padding: 0% 33%;
+        }
+          
+        .dropdowncontainer {
+          width: 100%; /* Width of the outside container */
+          height: 0%;
+          padding: 0% 33%;
+        }
+          
+      </style>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.4.0/lib/p5.js"></script>
+    <!-- <script src="sketch.js"></script>--> 
+    
+  </head>
+  <body>
+      <h1 style="text-align: center;">p5.js powered drawing app</h1>
+      <p style="text-align: center;">Hello world! You should see your drawing pad below. Use p5.js scripts in-line with html structure. Here we'll be drawing on presidents. Mostly care about functionality of drawing, so we won't bother too much with making the html or CSS look pretty </p>
+      
+      <p style="text-align: center;"> <b>Major functionalities:</b> 
+        1) Size Slider to alter seize of paintbrush. 
+        2) dropdown to select paint color, red or white  
+        3) Button to save the resulting image
+      </p>
+
+      <p style="text-align: center;">Just Put the slider in a paragraph heading to line it up with text. p5 sliders buggy for this application so we'll use html sliders. Just an HTML input tag of type range so its easy enough to call it. Dummy slider: 
+              <input type="range" min="1" max="30" value="10" class="slider" id="dummySlider">
+          Or just in a div class of its own: 
+      </p>
+      
+      <div class="slidecontainer">
+          <label>Select Size: </label>
+          
+              <input type="range" min="1" max="30" value="10" class="slider" id="sizeSlider"> 
+              <p>Size Slider Value: <span id="sliderShowValue"></span></p>
+      </div>
+      
+      <br><br><br>
+      
+      <div class="dropdowncontainer">
+              <form action="">
+                  <label for="maskDrawType">Choose a car:</label>
+                  <select name="maskDrawType" id="maskDrawType">
+                    <option value="drawHairMask">Draw Hair</option>
+                    <option value="eraseHairMask">Erase Hair</option>
+                  </select>
+                  
+                  <!-- <input type="submit" value="Submit" id="maskType"> don't need this-->
+                </form>
+          <br>
+          <p>Dropdown Menu Value: <span id="maskDrawTypeShowValue"></span></p>
+      </div>
+
+      <button type="button" id="saveImageButton">Save Image</button>
+      
+      <div id="sketch-container">
+      <script> //script to get/update slider and dropdown menu values 
+          function updateSliderValue() {  //funtion to initialize and update slider
+            var maskslider = document.getElementById("sizeSlider");
+            var outputSlider = document.getElementById("sliderShowValue");
+            outputSlider.innerHTML = maskslider.value; // Display the default slider value
+
+            // Update the current slider value (each time you drag the slider handle)
+            maskslider.oninput = function() {
+              outputSlider.innerHTML = this.value;
+            }
+            return maskslider.value
+          }
+          
+        function updateDropdownValue() { //funtion to initialize and update dropdown 
+            var maskdropdown = document.getElementById("maskDrawType");
+            var outputDropdown = document.getElementById("maskDrawTypeShowValue");
+            outputDropdown.innerHTML = maskdropdown.value; // Display the default dropdown value
+
+            // Update the current dropdown value (each time you drag the slider handle)
+            //adds event listener on the hidden file input to listen for any changes
+            
+            maskdropdown.oninput = function() {
+              outputDropdown.innerHTML = this.value;
+            }
+            return maskdropdown.value
+          }
+        
+        updateSliderValue()
+        updateDropdownValue() //actually run it to update the text inputs in span tags 
+
+
+        let img; // Declare variable 'img'.
+        let imgMask;
+
+        function preload() {
+          img = loadImage('https://upload.wikimedia.org/wikipedia/commons/8/8d/President_Barack_Obama.jpg');
+          //imgMask = loadImage('assets/testimg1.jpg');
+        }
+        
+        function setup() {
+          // create canvas
+          let canvas = createCanvas(512, 512);
+          canvas.parent('sketch-container');
+          background(img);
+          textSize(15);
+          
+          //img.mask(imgMask)
+          //import image 
+          //img = loadImage('testimg1.jpg');
+        }
+        
+        function draw() {
+          //image(img, 0, 0); // Displays the image at its actual size at point (0,0)
+          
+          //image(img, 0, height / 2, img.width / 2, img.height / 2); // Displays the image at point (0, height/2) at half size
+          //image(img, 0, 0, 512, 512);
+          
+          const s1 = updateSliderValue()  //strokeSizeSlider.value();
+          const s2 = updateDropdownValue() //strokeTypeSlider.value();
+            
+          strokeWeight(s1);
+          
+          //text('size', strokeSizeSlider.x * 2 + strokeSizeSlider.width, 35);
+          //text('draw/erase', strokeTypeSlider.x * 2 + strokeTypeSlider.width, 65);
+          
+          if (s2 === 'drawHairMask') { //drawHairMask
+              //draw mask with red
+              stroke(255, 0, 0);
+          }
+          if (s2 == 'eraseHairMask') { //eraseHairMask
+              //erase mask with white
+              stroke(255);
+          }
+          else { //just let the error/default case be drawing mask, since that's the main functionality 
+            stroke(255, 0, 0); 
+          }
+          
+          if (mouseIsPressed === true) {
+            line(mouseX, mouseY, pmouseX, pmouseY);
+          }
+        }
+
+            //adds event listener to the file uploader button
+        document.querySelector("#saveImageButton").addEventListener("click", () => {
+          //clicks on the file input
+          //img.save('saved-image', 'png');
+          saveCanvas(canvas, 'myCanvas.jpg');
+        });
+      </script>
+          </div>
+      
+  </body>
+</html>
